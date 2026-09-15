@@ -1,0 +1,44 @@
+{
+  "appName": "Eat Better",
+  "welcomeTitle": "Eat Better",
+  "welcomeSubtitle": "Kişisel beslenme danışmanın",
+  "welcomeDescription": "Yemeğinizin fotoğrafını çekin ve ne yediğinizi anlamanıza yardımcı olalım.",
+  "takePhoto": "Fotoğraf Çek",
+  "chooseFromGallery": "Galeriden Seç",
+
+  "continueButton": "Devam Et",
+  "backButton": "Geri",
+
+  "getToKnowYou": "Sizi tanıyalım",
+  "personalizeNutritionPlan": "Beslenme planınızı kişiselleştirmek için bu bilgileri kullanacağız.",
+  "howOldAreYou": "Kaç yaşındasınız?",
+  "years": "yaş",
+
+  "tellUsMore": "Bize biraz daha bilgi verin",
+  "sexDescription": "Bu bilgiyi beslenme hesaplamalarınızı daha doğru yapmak için kullanıyoruz.",
+  "whatIsYourSex": "Cinsiyetiniz nedir?",
+  "female": "Kadın",
+  "male": "Erkek",
+
+  "tellUsAboutYourBody": "Vücudunuz hakkında bilgi verin",
+  "heightDescription": "Boyunuz, beslenme planınızı kişiselleştirmemize yardımcı olur.",
+  "howTallAreYou": "Boyunuz kaç?",
+  "heightUnit": "cm",
+
+  "weightDescription": "Kilonuz, beslenme planınızı kişiselleştirmemize yardımcı olur.",
+  "currentWeight": "Mevcut kilonuz nedir?",
+  "weightUnit": "kg",
+
+  "activityLevel": "Aktivite seviyeniz",
+  "activityDescription": "Günlük aktivitenizi en iyi açıklayan seçeneği belirleyin.",
+  "notVeryActive": "Çok aktif değil",
+  "littleOrNoExercise": "Az veya hiç egzersiz yapmıyorum",
+  "lightlyActive": "Hafif aktif",
+  "exerciseOneToThreeDays": "Haftada 1–3 gün egzersiz",
+  "moderatelyActive": "Orta derecede aktif",
+  "exerciseThreeToFiveDays": "Haftada 3–5 gün egzersiz",
+  "veryActive": "Çok aktif",
+  "hardExerciseSixToSevenDays": "Haftada 6–7 gün yoğun egzersiz",
+  "extremelyActive": "Son derece aktif",
+  "veryHardTraining": "Çok yoğun antrenman veya fiziksel iş"
+}

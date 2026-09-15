@@ -1,0 +1,44 @@
+{
+  "appName": "Eat Better",
+  "welcomeTitle": "Eat Better",
+  "welcomeSubtitle": "Your personal nutrition mentor",
+  "welcomeDescription": "Take a photo of your meal and let us help you understand what you are eating.",
+  "takePhoto": "Take a Photo",
+  "chooseFromGallery": "Choose from Gallery",
+
+  "continueButton": "Continue",
+  "backButton": "Back",
+
+  "getToKnowYou": "Let’s get to know you",
+  "personalizeNutritionPlan": "We’ll use this to personalize your nutrition plan.",
+  "howOldAreYou": "How old are you?",
+  "years": "years",
+
+  "tellUsMore": "Tell us a little more",
+  "sexDescription": "We use this information to make your nutrition calculations more accurate.",
+  "whatIsYourSex": "What is your sex?",
+  "female": "Female",
+  "male": "Male",
+
+  "tellUsAboutYourBody": "Tell us about your body",
+  "heightDescription": "Your height helps us personalize your nutrition plan.",
+  "howTallAreYou": "How tall are you?",
+  "heightUnit": "cm",
+
+  "weightDescription": "Your weight helps us personalize your nutrition plan.",
+  "currentWeight": "What is your current weight?",
+  "weightUnit": "kg",
+
+  "activityLevel": "Your activity level",
+  "activityDescription": "Choose the option that best describes your usual activity.",
+  "notVeryActive": "Not very active",
+  "littleOrNoExercise": "Little or no exercise",
+  "lightlyActive": "Lightly active",
+  "exerciseOneToThreeDays": "Exercise 1–3 days per week",
+  "moderatelyActive": "Moderately active",
+  "exerciseThreeToFiveDays": "Exercise 3–5 days per week",
+  "veryActive": "Very active",
+  "hardExerciseSixToSevenDays": "Hard exercise 6–7 days per week",
+  "extremelyActive": "Extremely active",
+  "veryHardTraining": "Very hard training or physical job"
+}
