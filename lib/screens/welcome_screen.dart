@@ -1,5 +1,5 @@
-//--- welcome_screen.dart ---
 import 'package:flutter/material.dart';
+import '../models/user_profile.dart';
 import 'onboarding/age_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -73,12 +73,14 @@ class WelcomeScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                      builder: (context) => const AgeScreen(),
-    ),
-  );
-},
+                        builder: (context) => AgeScreen(
+                          profile: UserProfile(),
+                        ),
+                      ),
+                    );
+                  },
                   child: const Text(
-                    'Take a Photo',
+                    'Get Started',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,

@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import '../../models/user_profile.dart';
 import 'activity_screen.dart';
 
 class WeightScreen extends StatefulWidget {
-  const WeightScreen({super.key});
+  final UserProfile profile;
+
+  const WeightScreen({
+    super.key,
+    required this.profile,
+  });
 
   @override
   State<WeightScreen> createState() => _WeightScreenState();
@@ -49,12 +55,14 @@ class _WeightScreenState extends State<WeightScreen> {
       weightKg = weight * 0.45359237;
     }
 
-    print('Weight in kg: $weightKg');
+    widget.profile.weightKg = weightKg;
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ActivityScreen(),
+        builder: (context) => ActivityScreen(
+          profile: widget.profile,
+        ),
       ),
     );
   }

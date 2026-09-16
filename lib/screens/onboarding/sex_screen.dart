@@ -1,9 +1,14 @@
-// --- sex_screen.dart ---
 import 'package:flutter/material.dart';
+import '../../models/user_profile.dart';
 import 'height_screen.dart';
 
 class SexScreen extends StatefulWidget {
-  const SexScreen({super.key});
+  final UserProfile profile;
+
+  const SexScreen({
+    super.key,
+    required this.profile,
+  });
 
   @override
   State<SexScreen> createState() => _SexScreenState();
@@ -12,18 +17,22 @@ class SexScreen extends StatefulWidget {
 class _SexScreenState extends State<SexScreen> {
   String? selectedSex;
 
- void _continue() {
-  if (selectedSex == null) {
-    return;
-  }
+  void _continue() {
+    if (selectedSex == null) {
+      return;
+    }
 
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const HeightScreen(),
-    ),
-  );
-}
+    widget.profile.sex = selectedSex;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HeightScreen(
+          profile: widget.profile,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,61 +1,81 @@
 import 'package:flutter/material.dart';
 import '../../models/user_profile.dart';
-import 'goal_screen.dart';
+import '../../services/nutrition_calculator.dart';
+import '../nutrition_results_screen.dart';
 
-class ActivityScreen extends StatefulWidget {
+class GoalScreen extends StatefulWidget {
   final UserProfile profile;
 
-  const ActivityScreen({
+  const GoalScreen({
     super.key,
     required this.profile,
   });
 
   @override
-  State<ActivityScreen> createState() => _ActivityScreenState();
+  State<GoalScreen> createState() => _GoalScreenState();
 }
 
-class _ActivityScreenState extends State<ActivityScreen> {
-  String? selectedActivity;
+class _GoalScreenState extends State<GoalScreen> {
+  String? selectedGoal;
 
-  final List<Map<String, String>> activities = [
+  final List<Map<String, String>> goals = [
     {
-      'value': 'sedentary',
-      'title': 'Not very active',
-      'description': 'Little or no exercise',
+      'value': 'lose',
+      'title': 'Lose weight',
+      'description': 'Reduce body weight gradually',
     },
     {
-      'value': 'light',
-      'title': 'Lightly active',
-      'description': 'Exercise 1–3 days per week',
+      'value': 'maintain',
+      'title': 'Maintain weight',
+      'description': 'Keep your current weight',
     },
     {
-      'value': 'moderate',
-      'title': 'Moderately active',
-      'description': 'Exercise 3–5 days per week',
+      'value': 'gain',
+      'title': 'Gain weight',
+      'description': 'Increase body weight gradually',
     },
     {
-      'value': 'very',
-      'title': 'Very active',
-      'description': 'Hard exercise 6–7 days per week',
+      'value': 'muscle',
+      'title': 'Build muscle',
+      'description': 'Support muscle growth and strength',
     },
     {
-      'value': 'extreme',
-      'title': 'Extremely active',
-      'description': 'Very hard training or physical job',
+      'value': 'health',
+      'title': 'Improve overall health',
+      'description': 'Focus on balanced nutrition and wellbeing',
     },
   ];
 
   void _continue() {
-    if (selectedActivity == null) {
+    if (selectedGoal == null) {
       return;
     }
 
-    widget.profile.activity = selectedActivity;
+    widget.profile.goal = selectedGoal;
+
+    final bmi = NutritionCalculator.calculateBmi(widget.profile);
+    final bmr = NutritionCalculator.calculateBmr(widget.profile);
+    final tdee = NutritionCalculator.calculateTdee(widget.profile);
+    final calories =
+        NutritionCalculator.calculateCalorieTarget(widget.profile);
+    final protein = NutritionCalculator.calculateProtein(widget.profile);
+    final fat = NutritionCalculator.calculateFat(widget.profile);
+    final carbs =
+        NutritionCalculator.calculateCarbohydrates(widget.profile);
+
+    print('--- Eat Better Nutrition Results ---');
+    print('BMI: ${bmi.toStringAsFixed(1)}');
+    print('BMR: ${bmr.round()} kcal');
+    print('TDEE: ${tdee.round()} kcal');
+    print('Daily calories: ${calories.round()} kcal');
+    print('Protein: ${protein.round()} g');
+    print('Fat: ${fat.round()} g');
+    print('Carbs: ${carbs.round()} g');
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => GoalScreen(
+        builder: (context) => NutritionResultsScreen(
           profile: widget.profile,
         ),
       ),
@@ -81,44 +101,40 @@ class _ActivityScreenState extends State<ActivityScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Your activity level',
+                'What is your goal?',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
                   letterSpacing: -0.5,
                 ),
               ),
-
               const SizedBox(height: 10),
-
               Text(
-                'Choose the option that best describes your usual activity.',
+                'Choose the goal that best describes what you want to achieve.',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey.shade600,
                   height: 1.4,
                 ),
               ),
-
               const SizedBox(height: 28),
-
               Expanded(
                 child: ListView.separated(
-                  itemCount: activities.length,
+                  itemCount: goals.length,
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final activity = activities[index];
-                    final value = activity['value']!;
-                    final title = activity['title']!;
-                    final description = activity['description']!;
+                    final goal = goals[index];
+                    final value = goal['value']!;
+                    final title = goal['title']!;
+                    final description = goal['description']!;
 
-                    final selected = selectedActivity == value;
+                    final selected = selectedGoal == value;
 
                     return InkWell(
                       onTap: () {
                         setState(() {
-                          selectedActivity = value;
+                          selectedGoal = value;
                         });
                       },
                       borderRadius: BorderRadius.circular(18),
@@ -151,9 +167,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
-
                                   const SizedBox(height: 5),
-
                                   Text(
                                     description,
                                     style: TextStyle(
@@ -164,7 +178,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
                                 ],
                               ),
                             ),
-
                             if (selected)
                               Icon(
                                 Icons.check_circle,
@@ -177,14 +190,12 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   },
                 ),
               ),
-
               const SizedBox(height: 16),
-
               SizedBox(
                 width: double.infinity,
                 height: 58,
                 child: FilledButton(
-                  onPressed: selectedActivity == null ? null : _continue,
+                  onPressed: selectedGoal == null ? null : _continue,
                   style: FilledButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18),

@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import '../../models/user_profile.dart';
 import 'weight_screen.dart';
 
 class HeightScreen extends StatefulWidget {
-  const HeightScreen({super.key});
+  final UserProfile profile;
+
+  const HeightScreen({
+    super.key,
+    required this.profile,
+  });
 
   @override
   State<HeightScreen> createState() => _HeightScreenState();
@@ -72,12 +78,14 @@ class _HeightScreenState extends State<HeightScreen> {
       }
     }
 
-    print('Height in cm: $heightCm');
+    widget.profile.heightCm = heightCm;
 
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const WeightScreen(),
+        builder: (context) => WeightScreen(
+          profile: widget.profile,
+        ),
       ),
     );
   }

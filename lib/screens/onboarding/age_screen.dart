@@ -1,9 +1,15 @@
 // --- age_screen.dart ---
 import 'package:flutter/material.dart';
+import '../../models/user_profile.dart';
 import 'sex_screen.dart';
 
 class AgeScreen extends StatefulWidget {
-  const AgeScreen({super.key});
+  final UserProfile profile;
+
+  const AgeScreen({
+    super.key,
+    required this.profile,
+  });
 
   @override
   State<AgeScreen> createState() => _AgeScreenState();
@@ -14,26 +20,30 @@ class _AgeScreenState extends State<AgeScreen> {
       TextEditingController(text: '30');
 
   void _continue() {
-    final age = int.tryParse(ageController.text);
+  final age = int.tryParse(ageController.text);
 
-    if (age == null || age < 13 || age > 120) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Please enter an age between 13 and 120.',
-          ),
+  if (age == null || age < 13 || age > 120) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Please enter an age between 13 and 120.',
         ),
-      );
-      return;
-    }
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const SexScreen(),
       ),
     );
+    return;
   }
+
+  widget.profile.age = age;
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => SexScreen(
+        profile: widget.profile,
+      ),
+    ),
+  );
+}
 
   @override
   void dispose() {
