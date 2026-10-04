@@ -1,9 +1,8 @@
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../models/meal.dart';
 import '../models/user_profile.dart';
 import '../services/nutrition_calculator.dart';
 import 'meal_analysis_screen.dart';
@@ -22,85 +21,77 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ImagePicker _picker = ImagePicker();
+  final List<Meal> _meals = [];
 
-  XFile? _mealPhoto;
+  int calculateTotalCalories(List<Meal> meals) {
+    int total = 0;
+
+    for (final meal in meals) {
+      total += meal.calories;
+    }
+
+    return total;
+  }
+
+  void _addMeal(Meal meal) {
+    setState(() {
+      _meals.add(meal);
+    });
+  }
 
   Future<void> _takePhoto() async {
-    try {
-      final photo = await _picker.pickImage(
-        source: ImageSource.camera,
-        imageQuality: 85,
-      );
+    debugPrint('Camera button pressed');
 
-      if (photo == null) {
-        return;
-      }
+    final photo = await _picker.pickImage(
+      source: ImageSource.camera,
+    );
 
-      setState(() {
-        _mealPhoto = photo;
-      });
+    if (photo == null || !mounted) {
+      return;
+    }
 
-      if (!mounted) {
-        return;
-      }
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MealAnalysisScreen(
-            photo: photo,
-          ),
+    final meal = await Navigator.push<Meal>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MealAnalysisScreen(
+          photo: photo,
         ),
-      );
-    } catch (e) {
-      print('Camera error: $e');
+      ),
+    );
+
+    if (meal != null) {
+      _addMeal(meal);
     }
   }
 
   Future<void> _chooseFromGallery() async {
-    print('Gallery button pressed');
+    debugPrint('Gallery button pressed');
 
-    try {
-      final files = await FilePicker.pickFiles(
-        type: FileType.image,
-      );
+    final result = await FilePicker.pickFiles(
+      type: FileType.image,
+    );
 
-      print('File picker finished');
+    debugPrint('File picker finished');
 
-      if (files.isEmpty) {
-        print('No file selected');
-        return;
-      }
+    if (result.isEmpty || result.first.path == null || !mounted) {
+      return;
+    }
 
-      final file = files.first;
+    final photo = XFile(result.first.path!);
 
-      print('Selected file: ${file.path}');
+    debugPrint('Selected file: ${photo.path}');
 
-      if (file.path == null) {
-        print('File path is null');
-        return;
-      }
-
-      final photo = XFile(file.path!);
-
-      setState(() {
-        _mealPhoto = photo;
-      });
-
-      if (!mounted) {
-        return;
-      }
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MealAnalysisScreen(
-            photo: photo,
-          ),
+    final meal = await Navigator.push<Meal>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MealAnalysisScreen(
+          photo: photo,
         ),
-      );
-    } catch (e) {
-      print('Gallery error: $e');
+      ),
+    );
+
+    if (meal != null) {
+      _addMeal(meal);
     }
   }
 
@@ -108,6 +99,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final calories =
         NutritionCalculator.calculateCalorieTarget(widget.profile);
+
+    final consumedCalories = calculateTotalCalories(_meals);
+    final remainingCalories = calories - consumedCalories;
 
     final protein =
         NutritionCalculator.calculateProtein(widget.profile);
@@ -121,7 +115,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
                 'Good to see you!',
@@ -134,16 +128,16 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 8),
 
               const Text(
-                'Let’s make better food choices today.',
+                'Let’s keep track of what you eat today.',
                 style: TextStyle(
                   fontSize: 16,
+                  height: 1.4,
                 ),
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 24),
 
               Container(
-                width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -155,51 +149,57 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Text(
                       'Today’s nutrition target',
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
 
                     const SizedBox(height: 16),
 
-                    Text(
-                      '${calories.round()} kcal',
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
+                      Text(
+                        '${calories.round()} kcal',
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(height: 6),
+                      const SizedBox(height: 8),
 
-                    Text(
-                      '${protein.round()} g protein',
-                      style: const TextStyle(
-                        fontSize: 16,
+                      Text(
+                        '${consumedCalories.round()} kcal consumed',
                       ),
-                    ),
+
+                      Text(
+                        '${remainingCalories.round()} kcal remaining',
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      Text(
+                        '${protein.round()} g protein',
+                      ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 24),
 
               const Text(
                 'Add a meal',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
 
               SizedBox(
-                width: double.infinity,
                 height: 56,
                 child: FilledButton.icon(
                   onPressed: _takePhoto,
-                  icon: const Icon(Icons.camera_alt),
+                  icon: const Icon(Icons.camera_alt_outlined),
                   label: const Text(
                     'Take a Photo',
                     style: TextStyle(
@@ -212,11 +212,10 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 12),
 
               SizedBox(
-                width: double.infinity,
                 height: 56,
                 child: OutlinedButton.icon(
                   onPressed: _chooseFromGallery,
-                  icon: const Icon(Icons.photo_library),
+                  icon: const Icon(Icons.photo_library_outlined),
                   label: const Text(
                     'Choose from Gallery',
                     style: TextStyle(
@@ -226,32 +225,87 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              const SizedBox(height: 28),
+              const SizedBox(height: 32),
 
               const Text(
                 'Today’s meals',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
               ),
 
               const SizedBox(height: 12),
 
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  'No meals logged yet.',
-                  style: TextStyle(
-                    fontSize: 16,
+              if (_meals.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'No meals logged yet.',
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                )
+              else
+                ..._meals.map(
+                  (meal) => Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            meal.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                       SizedBox(
+                          width: 120,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              SizedBox(
+                                width: double.infinity,
+                                child: Text(
+                                  '${meal.calories} kcal',
+                                  textAlign: TextAlign.right,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              SizedBox(
+                                width: double.infinity,
+                                child: Text(
+                                  '${meal.protein.round()} g protein',
+                                  textAlign: TextAlign.right,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
