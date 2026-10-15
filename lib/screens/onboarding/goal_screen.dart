@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+
 import '../../models/user_profile.dart';
-import '../../services/nutrition_calculator.dart';
 import '../nutrition_results_screen.dart';
 
 class GoalScreen extends StatefulWidget {
   final UserProfile profile;
 
-  const GoalScreen({
-    super.key,
-    required this.profile,
-  });
+  const GoalScreen({super.key, required this.profile});
 
   @override
   State<GoalScreen> createState() => _GoalScreenState();
@@ -53,31 +50,10 @@ class _GoalScreenState extends State<GoalScreen> {
 
     widget.profile.goal = selectedGoal;
 
-    final bmi = NutritionCalculator.calculateBmi(widget.profile);
-    final bmr = NutritionCalculator.calculateBmr(widget.profile);
-    final tdee = NutritionCalculator.calculateTdee(widget.profile);
-    final calories =
-        NutritionCalculator.calculateCalorieTarget(widget.profile);
-    final protein = NutritionCalculator.calculateProtein(widget.profile);
-    final fat = NutritionCalculator.calculateFat(widget.profile);
-    final carbs =
-        NutritionCalculator.calculateCarbohydrates(widget.profile);
-
-    print('--- Eat Better Nutrition Results ---');
-    print('BMI: ${bmi.toStringAsFixed(1)}');
-    print('BMR: ${bmr.round()} kcal');
-    print('TDEE: ${tdee.round()} kcal');
-    print('Daily calories: ${calories.round()} kcal');
-    print('Protein: ${protein.round()} g');
-    print('Fat: ${fat.round()} g');
-    print('Carbs: ${carbs.round()} g');
-
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => NutritionResultsScreen(
-          profile: widget.profile,
-        ),
+        builder: (context) => NutritionResultsScreen(profile: widget.profile),
       ),
     );
   }
@@ -203,10 +179,7 @@ class _GoalScreenState extends State<GoalScreen> {
                   ),
                   child: const Text(
                     'Continue',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),

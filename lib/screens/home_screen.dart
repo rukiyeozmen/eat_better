@@ -10,10 +10,7 @@ import 'meal_analysis_screen.dart';
 class HomeScreen extends StatefulWidget {
   final UserProfile profile;
 
-  const HomeScreen({
-    super.key,
-    required this.profile,
-  });
+  const HomeScreen({super.key, required this.profile});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -23,14 +20,65 @@ class _HomeScreenState extends State<HomeScreen> {
   final ImagePicker _picker = ImagePicker();
   final List<Meal> _meals = [];
 
-  int calculateTotalCalories(List<Meal> meals) {
-    int total = 0;
+  int get consumedCalories =>
+      _meals.fold(0, (total, meal) => total + meal.calories);
 
-    for (final meal in meals) {
-      total += meal.calories;
+  double get consumedProtein =>
+      _meals.fold(0.0, (total, meal) => total + meal.protein);
+
+  double get consumedCarbs =>
+      _meals.fold(0.0, (total, meal) => total + meal.carbs);
+
+  double get consumedFat => _meals.fold(0.0, (total, meal) => total + meal.fat);
+
+  Future<void> _takePhoto() async {
+    final photo = await _picker.pickImage(source: ImageSource.camera);
+
+    if (!mounted || photo == null) {
+      return;
     }
 
-    return total;
+    final meal = await Navigator.push<Meal>(
+      context,
+      MaterialPageRoute(builder: (context) => MealAnalysisScreen(photo: photo)),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (meal != null) {
+      _addMeal(meal);
+    }
+  }
+
+  Future<void> _chooseFromGallery() async {
+    final result = await FilePicker.pickFiles(type: FileType.image);
+
+    if (!mounted || result.isEmpty) {
+      return;
+    }
+
+    final path = result.first.path;
+
+    if (path == null) {
+      return;
+    }
+
+    final photo = XFile(path);
+
+    final meal = await Navigator.push<Meal>(
+      context,
+      MaterialPageRoute(builder: (context) => MealAnalysisScreen(photo: photo)),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (meal != null) {
+      _addMeal(meal);
+    }
   }
 
   void _addMeal(Meal meal) {
@@ -39,275 +87,181 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Future<void> _takePhoto() async {
-    debugPrint('Camera button pressed');
-
-    final photo = await _picker.pickImage(
-      source: ImageSource.camera,
-    );
-
-    if (photo == null || !mounted) {
-      return;
-    }
-
-    final meal = await Navigator.push<Meal>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MealAnalysisScreen(
-          photo: photo,
-        ),
-      ),
-    );
-
-    if (meal != null) {
-      _addMeal(meal);
-    }
-  }
-
-  Future<void> _chooseFromGallery() async {
-    debugPrint('Gallery button pressed');
-
-    final result = await FilePicker.pickFiles(
-      type: FileType.image,
-    );
-
-    debugPrint('File picker finished');
-
-    if (result.isEmpty || result.first.path == null || !mounted) {
-      return;
-    }
-
-    final photo = XFile(result.first.path!);
-
-    debugPrint('Selected file: ${photo.path}');
-
-    final meal = await Navigator.push<Meal>(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MealAnalysisScreen(
-          photo: photo,
-        ),
-      ),
-    );
-
-    if (meal != null) {
-      _addMeal(meal);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final calories =
-        NutritionCalculator.calculateCalorieTarget(widget.profile);
+    final dailyCalories = NutritionCalculator.calculateCalorieTarget(
+      widget.profile,
+    );
 
-    final consumedCalories = calculateTotalCalories(_meals);
-    final remainingCalories = calories - consumedCalories;
+    final dailyProtein = NutritionCalculator.calculateProtein(widget.profile);
 
-    final protein =
-        NutritionCalculator.calculateProtein(widget.profile);
+    final remainingCalories = dailyCalories - consumedCalories;
+    final remainingProtein = dailyProtein - consumedProtein;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Eat Better'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Eat Better'), centerTitle: true),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Good to see you!',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            const Text(
+              'Your daily nutrition',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
 
-              const SizedBox(height: 8),
-
-              const Text(
-                'Let’s keep track of what you eat today.',
-                style: TextStyle(
-                  fontSize: 16,
-                  height: 1.4,
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text(
-                      'Today’s nutrition target',
+                      'Calories',
                       style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-
-                    const SizedBox(height: 16),
-
-                      Text(
-                        '${calories.round()} kcal',
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      Text(
-                        '${consumedCalories.round()} kcal consumed',
-                      ),
-
-                      Text(
-                        '${remainingCalories.round()} kcal remaining',
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      Text(
-                        '${protein.round()} g protein',
-                      ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '${consumedCalories.round()} / '
+                      '${dailyCalories.round()} kcal',
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                    const SizedBox(height: 8),
+                    LinearProgressIndicator(
+                      value: dailyCalories > 0
+                          ? (consumedCalories / dailyCalories).clamp(0.0, 1.0)
+                          : 0.0,
+                      minHeight: 8,
+                    ),
+                    const SizedBox(height: 8),
+                    Text('${remainingCalories.round()} kcal remaining'),
                   ],
                 ),
               ),
+            ),
 
-              const SizedBox(height: 24),
+            const SizedBox(height: 12),
 
-              const Text(
-                'Add a meal',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Protein',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${consumedProtein.round()} / '
+                      '${dailyProtein.round()} g',
+                      style: const TextStyle(fontSize: 20),
+                    ),
+                    const SizedBox(height: 8),
+                    LinearProgressIndicator(
+                      value: dailyProtein > 0
+                          ? (consumedProtein / dailyProtein).clamp(0.0, 1.0)
+                          : 0.0,
+                      minHeight: 8,
+                    ),
+                    const SizedBox(height: 8),
+                    Text('${remainingProtein.round()} g protein remaining'),
+                  ],
                 ),
               ),
+            ),
 
-              const SizedBox(height: 12),
+            const SizedBox(height: 12),
 
-              SizedBox(
-                height: 56,
-                child: FilledButton.icon(
-                  onPressed: _takePhoto,
-                  icon: const Icon(Icons.camera_alt_outlined),
-                  label: const Text(
-                    'Take a Photo',
-                    style: TextStyle(
-                      fontSize: 17,
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Other nutrients',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text('Carbohydrates: ${consumedCarbs.round()} g'),
+                    const SizedBox(height: 8),
+                    Text('Fat: ${consumedFat.round()} g'),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            const Text(
+              'Add a meal',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _takePhoto,
+                icon: const Icon(Icons.camera_alt),
+                label: const Text('Take a photo'),
+              ),
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _chooseFromGallery,
+                icon: const Icon(Icons.photo_library),
+                label: const Text('Choose from gallery'),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            const Text(
+              "Today's meals",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+
+            if (_meals.isEmpty)
+              const Card(
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    'No meals added yet. Take a photo or choose '
+                    'a picture from your gallery to get started.',
+                  ),
+                ),
+              )
+            else
+              ..._meals.map(
+                (meal) => Card(
+                  child: ListTile(
+                    leading: const CircleAvatar(child: Icon(Icons.restaurant)),
+                    title: Text(meal.name),
+                    subtitle: Text(
+                      '${meal.calories} kcal'
+                      ' • Protein ${meal.protein.round()} g'
+                      ' • Carbs ${meal.carbs.round()} g'
+                      ' • Fat ${meal.fat.round()} g',
                     ),
                   ),
                 ),
               ),
-
-              const SizedBox(height: 12),
-
-              SizedBox(
-                height: 56,
-                child: OutlinedButton.icon(
-                  onPressed: _chooseFromGallery,
-                  icon: const Icon(Icons.photo_library_outlined),
-                  label: const Text(
-                    'Choose from Gallery',
-                    style: TextStyle(
-                      fontSize: 17,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 32),
-
-              const Text(
-                'Today’s meals',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 12),
-
-              if (_meals.isEmpty)
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Text(
-                    'No meals logged yet.',
-                    style: TextStyle(
-                      fontSize: 16,
-                    ),
-                  ),
-                )
-              else
-                ..._meals.map(
-                  (meal) => Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            meal.name,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                       SizedBox(
-                          width: 120,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              SizedBox(
-                                width: double.infinity,
-                                child: Text(
-                                  '${meal.calories} kcal',
-                                  textAlign: TextAlign.right,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              SizedBox(
-                                width: double.infinity,
-                                child: Text(
-                                  '${meal.protein.round()} g protein',
-                                  textAlign: TextAlign.right,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          ),
+          ],
         ),
       ),
     );
