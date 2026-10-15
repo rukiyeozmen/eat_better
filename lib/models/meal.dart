@@ -1,11 +1,11 @@
-class Meal{
-  String name;
-  int calories;
-  double protein;
-  double carbs;
-  double fat;
+class Meal {
+  final String name;
+  final int calories;
+  final double protein;
+  final double carbs;
+  final double fat;
 
-  Meal({
+  const Meal({
     required this.name,
     required this.calories,
     required this.protein,
