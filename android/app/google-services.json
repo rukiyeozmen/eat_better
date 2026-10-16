@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1078565100549",
+    "project_id": "eat-better-2cb51",
+    "storage_bucket": "eat-better-2cb51.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1078565100549:android:b7aa4346c96a0f94af506c",
+        "android_client_info": {
+          "package_name": "com.example.eat_better"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCydswT8CNs_M6PYh89xBVQl0UuDsQozfQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
