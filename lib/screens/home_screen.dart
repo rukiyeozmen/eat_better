@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -32,6 +33,11 @@ class _HomeScreenState extends State<HomeScreen> {
   double get consumedFat => _meals.fold(0.0, (total, meal) => total + meal.fat);
 
   Future<void> _takePhoto() async {
+    if (Platform.isMacOS) {
+      await _chooseFromGallery();
+      return;
+    }
+
     final photo = await _picker.pickImage(source: ImageSource.camera);
 
     if (!mounted || photo == null) {
@@ -51,7 +57,6 @@ class _HomeScreenState extends State<HomeScreen> {
       _addMeal(meal);
     }
   }
-
   Future<void> _chooseFromGallery() async {
     final result = await FilePicker.pickFiles(type: FileType.image);
 

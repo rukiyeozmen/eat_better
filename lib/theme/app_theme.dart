@@ -9,7 +9,6 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFF6FAF7B),
       ),
-      fontFamily: 'Arial',
     );
   }
 }

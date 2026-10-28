@@ -1,8 +1,7 @@
+import '../services/nutrition_service.dart';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-
 import '../models/meal.dart';
 
 class MealAnalysisScreen extends StatelessWidget {
@@ -107,7 +106,8 @@ class MealAnalysisScreen extends StatelessWidget {
   }
 }
 
-class MealResultScreen extends StatelessWidget {
+
+class MealResultScreen extends StatefulWidget {
   final XFile photo;
 
   const MealResultScreen({
@@ -116,155 +116,193 @@ class MealResultScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final meal = Meal(
-      name: 'Chicken, rice & vegetables',
-      calories: 620,
-      protein: 42,
-      carbs: 58,
-      fat: 20,
-    );
+  State<MealResultScreen> createState() => _MealResultScreenState();
+}
 
+class _MealResultScreenState extends State<MealResultScreen> {
+  late Future<Meal> _mealFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _mealFuture = NutritionService().analyzeMeal();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Meal Result'),
         centerTitle: true,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text(
-                'Your meal',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: Image.file(
-                  File(photo.path),
-                  width: double.infinity,
-                  height: 260,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              const SizedBox(height: 28),
-              const Text(
-                'Estimated meal',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      meal.name,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
+        child: FutureBuilder<Meal>(
+          future: _mealFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+
+            if (snapshot.hasError || !snapshot.hasData) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 48,
                       ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Could not load nutrition data. '
+                        'Check that the Firebase emulator is running.',
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      FilledButton(
+                        onPressed: () {
+                          setState(() {
+                            _mealFuture =
+                                NutritionService().analyzeMeal();
+                          });
+                        },
+                        child: const Text('Try Again'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            final meal = snapshot.data!;
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Your meal',
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  ),
+                  const SizedBox(height: 16),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: Image.file(
+                      File(widget.photo.path),
+                      width: double.infinity,
+                      height: 260,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  const Text(
+                    'Estimated meal',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _NutritionItem(
-                          value: '${meal.calories}',
-                          label: 'Calories',
+                        Text(
+                          meal.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        _NutritionItem(
-                          value: '${meal.protein} g',
-                          label: 'Protein',
-                        ),
-                        _NutritionItem(
-                          value: '${meal.carbs} g',
-                          label: 'Carbs',
-                        ),
-                        _NutritionItem(
-                          value: '${meal.fat} g',
-                          label: 'Fat',
+                        const SizedBox(height: 20),
+                        Wrap(
+                          spacing: 20,
+                          runSpacing: 16,
+                          children: [
+                            _NutritionItem(
+                              value: '${meal.calories}',
+                              label: 'Calories',
+                            ),
+                            _NutritionItem(
+                              value: '${meal.protein} g',
+                              label: 'Protein',
+                            ),
+                            _NutritionItem(
+                              value: '${meal.carbs} g',
+                              label: 'Carbs',
+                            ),
+                            _NutritionItem(
+                              value: '${meal.fat} g',
+                              label: 'Fat',
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.info_outline),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'This is a temporary estimate. The real AI analysis will identify the food and calculate nutrition from the photo.',
-                        style: TextStyle(
-                          fontSize: 14,
-                          height: 1.4,
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.withValues(alpha: 0.10),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.info_outline),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'These are sample nutrition values, '
+                            'not an analysis of your photo.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              height: 1.4,
+                            ),
+                          ),
                         ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  SizedBox(
+                    height: 56,
+                    child: FilledButton(
+                      onPressed: () {
+                        Navigator.pop(context, meal);
+                      },
+                      child: const Text(
+                        'Add to My Meals',
+                        style: TextStyle(fontSize: 18),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 28),
-              SizedBox(
-                height: 56,
-                child: FilledButton(
-                  onPressed: () {
-                    Navigator.pop(context, meal);
-                  },
-                  child: const Text(
-                    'Add to My Meals',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
                   ),
-                ),
+                ],
               ),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 56,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text(
-                    'Choose Another Photo',
-                    style: TextStyle(
-                      fontSize: 17,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
   }
 }
+
 
 class _NutritionItem extends StatelessWidget {
   final String value;
