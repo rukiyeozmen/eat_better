@@ -158,8 +158,9 @@ class _MealResultScreenState extends State<MealResultScreen> {
                       ),
                       const SizedBox(height: 16),
                       const Text(
-                        'Could not load nutrition data. '
-                        'Check that the Firebase emulator is running.',
+                        'We couldn’t analyze your meal right now. '
+                        'Please check that the Firebase emulator is running '
+                        'and try again.',
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
@@ -211,50 +212,74 @@ class _MealResultScreenState extends State<MealResultScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          meal.name,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
+                  
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        meal.name,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
                         ),
-                        const SizedBox(height: 20),
-                        Wrap(
-                          spacing: 20,
-                          runSpacing: 16,
+                      ),
+                      const SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
                           children: [
-                            _NutritionItem(
-                              value: '${meal.calories}',
-                              label: 'Calories',
+                            const Text('TOTAL CALORIES'),
+                            const SizedBox(height: 8),
+                            Text(
+                              '${meal.calories}',
+                              style: const TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                            _NutritionItem(
+                            const Text('kcal'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _NutritionItem(
                               value: '${meal.protein} g',
                               label: 'Protein',
                             ),
-                            _NutritionItem(
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _NutritionItem(
                               value: '${meal.carbs} g',
                               label: 'Carbs',
                             ),
-                            _NutritionItem(
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: _NutritionItem(
                               value: '${meal.fat} g',
                               label: 'Fat',
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
+                ),
+
                   const SizedBox(height: 16),
                   Container(
                     padding: const EdgeInsets.all(16),
