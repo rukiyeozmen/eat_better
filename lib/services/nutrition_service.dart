@@ -34,6 +34,7 @@ class NutritionService {
       protein: (mealData['protein'] as num).toDouble(),
       carbs: (mealData['carbs'] as num).toDouble(),
       fat: (mealData['fat'] as num).toDouble(),
+      date: DateTime.now(),
     );
   }
 
