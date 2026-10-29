@@ -125,7 +125,7 @@ class _MealResultScreenState extends State<MealResultScreen> {
   @override
   void initState() {
     super.initState();
-    _mealFuture = NutritionService().analyzeMeal();
+    _mealFuture = NutritionService().analyzeMeal(File(widget.photo.path));
   }
 
   @override
@@ -167,7 +167,7 @@ class _MealResultScreenState extends State<MealResultScreen> {
                         onPressed: () {
                           setState(() {
                             _mealFuture =
-                                NutritionService().analyzeMeal();
+                                NutritionService().analyzeMeal(File(widget.photo.path));
                           });
                         },
                         child: const Text('Try Again'),
