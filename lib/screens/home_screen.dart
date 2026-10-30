@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/meal.dart';
 import '../models/user_profile.dart';
 import '../services/nutrition_calculator.dart';
+import 'edit_profile_screen.dart';
 import 'meal_analysis_screen.dart';
 import 'meal_history_screen.dart';
 
@@ -30,16 +31,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   static const String _mealsKey = 'saved_meals';
 
-  
-List<Meal> get todaysMeals {
-  final now = DateTime.now();
+  List<Meal> get todaysMeals {
+    final now = DateTime.now();
 
-  return _meals.where((meal) {
-    return meal.date.year == now.year &&
-        meal.date.month == now.month &&
-        meal.date.day == now.day;
-  }).toList();
-}
+    return _meals.where((meal) {
+      return meal.date.year == now.year &&
+          meal.date.month == now.month &&
+          meal.date.day == now.day;
+    }).toList();
+  }
 
   int get consumedCalories =>
       todaysMeals.fold(0, (total, meal) => total + meal.calories);
@@ -53,7 +53,6 @@ List<Meal> get todaysMeals {
   double get consumedFat =>
       todaysMeals.fold(0.0, (total, meal) => total + meal.fat);
 
-
   @override
   void initState() {
     super.initState();
@@ -63,11 +62,11 @@ List<Meal> get todaysMeals {
   Future<void> _loadMeals() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      // await prefs.remove(_mealsKey);
       final savedMeals = prefs.getString(_mealsKey);
 
       if (savedMeals != null) {
         final decoded = jsonDecode(savedMeals) as List<dynamic>;
+
         final loadedMeals = decoded.map((item) {
           return Meal.fromJson(
             Map<String, dynamic>.from(item as Map),
@@ -96,6 +95,7 @@ List<Meal> get todaysMeals {
   Future<void> _saveMeals() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+
       final encodedMeals = jsonEncode(
         _meals.map((meal) => meal.toJson()).toList(),
       );
@@ -129,20 +129,18 @@ List<Meal> get todaysMeals {
     await _openMealAnalysis(photo);
   }
 
-  
-    Future<void> _chooseFromGallery() async {
-      final result = await FilePicker.pickFiles(
-        type: FileType.image,
-      );
+  Future<void> _chooseFromGallery() async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.image,
+    );
 
-      if (!mounted || result.isEmpty) return;
+    if (!mounted || result.isEmpty) return;
 
-      final path = result.first.path;
-      if (path == null) return;
+    final path = result.first.path;
+    if (path == null) return;
 
-      await _openMealAnalysis(XFile(path));
-    }
-
+    await _openMealAnalysis(XFile(path));
+  }
 
   Future<void> _openMealAnalysis(XFile photo) async {
     final meal = await Navigator.push<Meal>(
@@ -165,11 +163,27 @@ List<Meal> get todaysMeals {
     await _saveMeals();
   }
 
+  Future<void> _openEditProfile() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditProfileScreen(
+          profile: widget.profile,
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     final dailyCalories = NutritionCalculator.calculateCalorieTarget(
       widget.profile,
     );
+
     final dailyProtein = NutritionCalculator.calculateProtein(
       widget.profile,
     );
@@ -178,26 +192,31 @@ List<Meal> get todaysMeals {
     final remainingProtein = dailyProtein - consumedProtein;
 
     return Scaffold(
-     appBar: AppBar(
-      title: const Text('Eat Better'),
-      centerTitle: true,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.calendar_month),
-          tooltip: 'Meal History',
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MealHistoryScreen(
-                  meals: List.unmodifiable(_meals),
+      appBar: AppBar(
+        title: const Text('Eat Better'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person_outline),
+            tooltip: 'Edit Profile',
+            onPressed: _openEditProfile,
+          ),
+          IconButton(
+            icon: const Icon(Icons.calendar_month),
+            tooltip: 'Meal History',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MealHistoryScreen(
+                    meals: List.unmodifiable(_meals),
+                  ),
                 ),
-              ),
-            );
-          },
-        ),
-      ],
-    ),
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: _isLoadingMeals
             ? const Center(child: CircularProgressIndicator())
