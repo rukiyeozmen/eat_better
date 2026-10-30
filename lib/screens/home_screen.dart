@@ -29,17 +29,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
   static const String _mealsKey = 'saved_meals';
 
+  
+List<Meal> get todaysMeals {
+  final now = DateTime.now();
+
+  return _meals.where((meal) {
+    return meal.date.year == now.year &&
+        meal.date.month == now.month &&
+        meal.date.day == now.day;
+  }).toList();
+}
+
   int get consumedCalories =>
-      _meals.fold(0, (total, meal) => total + meal.calories);
+      todaysMeals.fold(0, (total, meal) => total + meal.calories);
 
   double get consumedProtein =>
-      _meals.fold(0.0, (total, meal) => total + meal.protein);
+      todaysMeals.fold(0.0, (total, meal) => total + meal.protein);
 
   double get consumedCarbs =>
-      _meals.fold(0.0, (total, meal) => total + meal.carbs);
+      todaysMeals.fold(0.0, (total, meal) => total + meal.carbs);
 
   double get consumedFat =>
-      _meals.fold(0.0, (total, meal) => total + meal.fat);
+      todaysMeals.fold(0.0, (total, meal) => total + meal.fat);
+
 
   @override
   void initState() {
@@ -50,6 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadMeals() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      // await prefs.remove(_mealsKey);
       final savedMeals = prefs.getString(_mealsKey);
 
       if (savedMeals != null) {
@@ -322,7 +335,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  if (_meals.isEmpty)
+                  if (todaysMeals.isEmpty)
                     const Card(
                       child: Padding(
                         padding: EdgeInsets.all(16),
@@ -333,7 +346,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     )
                   else
-                    ..._meals.map(
+                    ...todaysMeals.map(
                       (meal) => Card(
                         child: ListTile(
                           leading: const CircleAvatar(
