@@ -11,6 +11,7 @@ import '../models/meal.dart';
 import '../models/user_profile.dart';
 import '../services/nutrition_calculator.dart';
 import 'meal_analysis_screen.dart';
+import 'meal_history_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final UserProfile profile;
@@ -177,10 +178,26 @@ List<Meal> get todaysMeals {
     final remainingProtein = dailyProtein - consumedProtein;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Eat Better'),
-        centerTitle: true,
-      ),
+     appBar: AppBar(
+      title: const Text('Eat Better'),
+      centerTitle: true,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.calendar_month),
+          tooltip: 'Meal History',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MealHistoryScreen(
+                  meals: List.unmodifiable(_meals),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
+    ),
       body: SafeArea(
         child: _isLoadingMeals
             ? const Center(child: CircularProgressIndicator())
