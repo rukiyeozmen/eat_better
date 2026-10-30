@@ -10,7 +10,9 @@ import 'package:eat_better/main.dart';
 
 void main() {
 testWidgets('Eat Better app launches', (WidgetTester tester) async {
-await tester.pumpWidget(const EatBetterApp());
+await tester.pumpWidget(
+  const EatBetterApp(initialProfile: null),
+);
 
 expect(find.byType(EatBetterApp), findsOneWidget);
 

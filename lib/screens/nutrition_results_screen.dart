@@ -1,5 +1,6 @@
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
-
 import '../models/user_profile.dart';
 import '../services/nutrition_calculator.dart';
 import 'home_screen.dart';
@@ -175,16 +176,25 @@ class NutritionResultsScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 58,
                 child: FilledButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomeScreen(
-                          profile: profile,
-                        ),
+                 onPressed: () async {
+                  final prefs = await SharedPreferences.getInstance();
+
+                  await prefs.setString(
+                    'user_profile',
+                    jsonEncode(profile.toJson()),
+                  );
+
+                  if (!context.mounted) return;
+
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomeScreen(
+                        profile: profile,
                       ),
-                    );
-                  },
+                    ),
+                  );
+                },
                   style: FilledButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18),
